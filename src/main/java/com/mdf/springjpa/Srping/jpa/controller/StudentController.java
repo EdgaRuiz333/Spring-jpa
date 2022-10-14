@@ -26,7 +26,7 @@ public class StudentController {
 	@Autowired
 	private IStudentService _studentService;
 	
-	@PostMapping
+	@PostMapping("/register")
 	public ResponseEntity<Student> createNewStudent(
 			@Valid @RequestBody Student student
 			){		

@@ -3,6 +3,7 @@ package com.mdf.springjpa.Srping.jpa.service.Impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,8 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	StudentRepository _studentRepository;
+	@Autowired
+	PasswordEncoder _passwordEncoder;
 	
 	@Override
 	public Student addStudent(Student student) {
@@ -32,6 +35,8 @@ public class StudentServiceImpl implements IStudentService {
 							.fisrtName(student.getFisrtName())
 							.lastName(student.getLastName())
 							.emailId(student.getEmailId())
+							.password(_passwordEncoder.encode(student.getPassword()))
+							.role(student.getRole())
 							.guardian(guardian)
 							.build();
 		this._studentRepository.save(bldStudent);
