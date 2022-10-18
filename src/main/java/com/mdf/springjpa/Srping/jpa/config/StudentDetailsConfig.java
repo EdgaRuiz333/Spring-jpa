@@ -2,6 +2,7 @@ package com.mdf.springjpa.Srping.jpa.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mdf.springjpa.Srping.jpa.models.Authority;
 import com.mdf.springjpa.Srping.jpa.models.Student;
 import com.mdf.springjpa.Srping.jpa.repository.StudentRepository;
 
@@ -63,11 +65,21 @@ public class StudentDetailsConfig implements AuthenticationProvider {//UserDetai
 			if(_passwordEncoder.matches(password, student.getPassword())) {
 				List<GrantedAuthority> authorities = new ArrayList<>();
 				authorities.add(new SimpleGrantedAuthority(student.getRole()));
-				return new UsernamePasswordAuthenticationToken(userName, password, authorities);
+				return new UsernamePasswordAuthenticationToken(userName, password, getGrantedAuthorities(student.getAuthorities()));
 			}
 			throw new BadCredentialsException("No user registered with those credentials");
 		}		
 		throw new BadCredentialsException("No user registered with those credentials");
+	}
+	
+	private List<GrantedAuthority> getGrantedAuthorities (Set<Authority> authorities){
+		List<GrantedAuthority> grandedAuthorities = new ArrayList<>();
+		
+		for(Authority authority : authorities) {
+			grandedAuthorities.add(new SimpleGrantedAuthority(authority.getName()));
+		}
+		
+		return grandedAuthorities;
 	}
 
 	@Override
