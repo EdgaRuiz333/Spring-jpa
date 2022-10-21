@@ -4,7 +4,7 @@ spring:
       username: root
    driver-class-name: com.mysql.jdbc.Driver
    jpa:
-      show-sql: true
+      #show-sql: true
       hibernate:
          ddl-auto: update
    #security:
@@ -13,5 +13,7 @@ spring:
       #   password: 12345
 
 URLS:
-   Authenticated: /api/student/byEmail,/api/student/update,/api/student/all,/api/course/**
+   Authenticated: 
+      WithoutRole: /api/student/byEmail,/api/student/update,/api/student/all,/api/student/authorities
+      WithBalanceRole: /api/course/**   
    Permitall: /api/student/register

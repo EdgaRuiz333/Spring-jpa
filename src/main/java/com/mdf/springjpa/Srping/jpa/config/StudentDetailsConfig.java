@@ -12,12 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mdf.springjpa.Srping.jpa.models.Authority;
 import com.mdf.springjpa.Srping.jpa.models.Student;
@@ -56,6 +53,7 @@ public class StudentDetailsConfig implements AuthenticationProvider {//UserDetai
 	} 
 */
 	@Override
+	@Transactional
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		// TODO Auto-generated method stub
 		String userName = authentication.getName();
@@ -63,8 +61,6 @@ public class StudentDetailsConfig implements AuthenticationProvider {//UserDetai
 		Student student = this._studentRepository.findByEmailId(userName);
 		if(student != null) {
 			if(_passwordEncoder.matches(password, student.getPassword())) {
-				List<GrantedAuthority> authorities = new ArrayList<>();
-				authorities.add(new SimpleGrantedAuthority(student.getRole()));
 				return new UsernamePasswordAuthenticationToken(userName, password, getGrantedAuthorities(student.getAuthorities()));
 			}
 			throw new BadCredentialsException("No user registered with those credentials");
@@ -73,6 +69,7 @@ public class StudentDetailsConfig implements AuthenticationProvider {//UserDetai
 	}
 	
 	private List<GrantedAuthority> getGrantedAuthorities (Set<Authority> authorities){
+		System.out.println(authorities);
 		List<GrantedAuthority> grandedAuthorities = new ArrayList<>();
 		
 		for(Authority authority : authorities) {

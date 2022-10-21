@@ -7,7 +7,6 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -45,6 +44,12 @@ public class StudentController {
 	@GetMapping("/all")
 	public ResponseEntity<List<Student>> retrieveAllStudents(){
 		List<Student> students = this._studentService.retrieveAllStudent();
+		return new ResponseEntity<>(students, HttpStatus.OK);
+	}
+	
+	@GetMapping("/authorities")
+	public ResponseEntity<List<Student>> retrieveAllStudentsAuthorities(){
+		List<Student> students = this._studentService.retrieveAllStudentsAuthorities();
 		return new ResponseEntity<>(students, HttpStatus.OK);
 	}
 	

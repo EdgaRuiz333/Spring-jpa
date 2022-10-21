@@ -8,12 +8,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
+import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
+import com.mdf.springjpa.Srping.jpa.filter.RequestValidationBeforeFilter;
 
 @Configuration
 public class ProectSecurityConfig {
 
-	@Value("${URLS.Authenticated}")
-	private String authenticatedURL;
+	@Value("${URLS.Authenticated.WithoutRole}")
+	private String authenticatedURLWithoutRoles;
+	
+	@Value("${URLS.Authenticated.WithBalanceRole}")
+	private String authenticatedURLWithBalanceRole;
 	
 	@Value("${URLS.Permitall}")
 	private String permitedURL;
@@ -42,15 +50,21 @@ public class ProectSecurityConfig {
 		.and().httpBasic();
 		*/
 		
-		String[] listUrlAuthenticated = this.authenticatedURL.split(",");
+		String[] listUrlAuthenticated = this.authenticatedURLWithoutRoles.split(",");
+		String[] listUrlAuthenticatedWithBalanceRole = this.authenticatedURLWithBalanceRole.split(",");
 		String[] listUrlPermited = this.permitedURL.split(",");
 		
 		http.authorizeRequests()
-		.antMatchers(listUrlAuthenticated).authenticated()
 		.antMatchers(listUrlPermited).permitAll()
+		.antMatchers(listUrlAuthenticated).authenticated()
+		.antMatchers(listUrlAuthenticatedWithBalanceRole).hasAuthority("VIEWBALANCE")		
 		.and().formLogin()
 		.and().httpBasic()
-		.and().csrf().disable();
+		.and().csrf().disable()
+		.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+		.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
+		.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
+		;
 		
 		return http.build();
 	}

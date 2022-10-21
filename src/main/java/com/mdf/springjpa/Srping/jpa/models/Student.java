@@ -6,7 +6,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,26 +21,29 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 @Table(name="tbl_students", uniqueConstraints = @UniqueConstraint(name="email_unique", columnNames = "email_address"))
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Student {
 	@Id
 	@SequenceGenerator(name="student_sequence", sequenceName = "student_sequence", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "student_sequence")
 	@Column(name = "student_id")
+	@EqualsAndHashCode.Include
 	private Long studentId;
 	@Column(columnDefinition = "varchar(50)")
 	@NotBlank(message = "Field 'firstName' is mandatory")
@@ -61,13 +63,11 @@ public class Student {
 	@Embedded
 	private Guardian guardian;
 	
-	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JsonIgnore
-	@EqualsAndHashCode.Exclude
+	@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
 	@ToString.Exclude
 	private Set<Course> courses;
 	
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany
 	@JoinTable(
 			name = "student_authorities_table",
 			joinColumns = {
@@ -77,8 +77,6 @@ public class Student {
 					@JoinColumn(name="authorities_id", referencedColumnName = "authorities_id")
 			}
 	)
-	@JsonManagedReference
-	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	private Set<Authority> authorities;
 }

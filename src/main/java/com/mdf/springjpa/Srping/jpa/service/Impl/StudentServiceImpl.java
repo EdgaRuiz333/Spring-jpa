@@ -86,4 +86,13 @@ public class StudentServiceImpl implements IStudentService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public List<Student> retrieveAllStudentsAuthorities(){
+		try {
+			List<Student> studentAuth = this._studentRepository.GET_ALL_STUDENTS_AUTHORITIES("test@test.com");
+			return studentAuth;
+		} catch(Exception e){
+			return null;
+		}
+	}
 }
