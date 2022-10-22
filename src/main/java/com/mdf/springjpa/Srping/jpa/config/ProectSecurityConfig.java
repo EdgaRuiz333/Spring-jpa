@@ -3,7 +3,14 @@ package com.mdf.springjpa.Srping.jpa.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,8 +21,15 @@ import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
 import com.mdf.springjpa.Srping.jpa.filter.RequestValidationBeforeFilter;
 
+@SuppressWarnings("deprecation")
 @Configuration
-public class ProectSecurityConfig {
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(
+		securedEnabled = true,
+		jsr250Enabled = true,
+		prePostEnabled = true
+		)
+public class ProectSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	@Value("${URLS.Authenticated.WithoutRole}")
 	private String authenticatedURLWithoutRoles;
@@ -26,8 +40,10 @@ public class ProectSecurityConfig {
 	@Value("${URLS.Permitall}")
 	private String permitedURL;
 	
-	@Bean
-	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+	//@Bean
+	//SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+	@Override
+	protected void configure(HttpSecurity http) throws Exception{
 		
 		/**
 		 * Configuration to deny all the requests
@@ -61,12 +77,12 @@ public class ProectSecurityConfig {
 		.and().formLogin()
 		.and().httpBasic()
 		.and().csrf().disable()
-		.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
-		.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
-		.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
+		//.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+		//.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
+		//.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
 		;
 		
-		return http.build();
+		//return http.build();
 	}
 	
 	/**
@@ -81,5 +97,24 @@ public class ProectSecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {		
 		return new BCryptPasswordEncoder();		
+	}
+	
+	//@Bean(BeanIds.AUTHENTICATION_MANAGER)
+	//public AuthenticationManager authenticationManagerBean() throws Exception{
+		//return super.authenticationManagerBean();
+	//}
+	
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception{
+		return new DummyAuthenticationManager();
+	}
+	
+}
+
+class DummyAuthenticationManager implements AuthenticationManager{
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException{
+		return authentication;
 	}
 }
