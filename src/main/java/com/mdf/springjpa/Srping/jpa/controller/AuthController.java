@@ -1,37 +1,32 @@
 package com.mdf.springjpa.Srping.jpa.controller;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mdf.springjpa.Srping.jpa.payload.LoginRequest;
-import com.mdf.springjpa.Srping.jpa.security.JwtTokenProvider;
+import com.mdf.springjpa.Srping.jpa.models.Student;
+import com.mdf.springjpa.Srping.jpa.repository.StudentRepository;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 	
 	@Autowired
-	private AuthenticationManager authenticationManager;
-	
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
+	private StudentRepository _studentRepository;
 	
 	@PostMapping("/signin")
-	public ResponseEntity<String> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
+	public ResponseEntity<Student> authenticateUser(Authentication authentication){
 		
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-		String jwt = jwtTokenProvider.generateToken(authentication);
-		return ResponseEntity.ok(jwt);
+		Student _student = _studentRepository.findByEmailId(authentication.getName());
+		if(_student != null) {
+			return new ResponseEntity<>(_student,HttpStatus.OK);
+		}else {
+			return null;
+		}		
 	}
 
 }

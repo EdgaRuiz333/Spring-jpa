@@ -20,8 +20,9 @@ import com.mdf.springjpa.Srping.jpa.models.Authority;
 import com.mdf.springjpa.Srping.jpa.models.Student;
 import com.mdf.springjpa.Srping.jpa.repository.StudentRepository;
 
-//@Service
-public class StudentDetailsConfig {//implements AuthenticationProvider {//UserDetailsService {
+@Service
+@Transactional
+public class StudentDetailsConfig implements AuthenticationProvider {//UserDetailsService {
 	
 	@Autowired
 	private StudentRepository _studentRepository;
@@ -52,8 +53,8 @@ public class StudentDetailsConfig {//implements AuthenticationProvider {//UserDe
 		return new User(userName,password,authorities);
 	} 
 */
-	//@Override
-	@Transactional
+	@Override
+	//@Transactional
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		// TODO Auto-generated method stub
 		String userName = authentication.getName();
@@ -79,7 +80,7 @@ public class StudentDetailsConfig {//implements AuthenticationProvider {//UserDe
 		return grandedAuthorities;
 	}
 
-	//@Override
+	@Override
 	public boolean supports(Class<?> authentication) {
 		// TODO Auto-generated method stub
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));

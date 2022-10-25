@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,16 +21,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
 import com.mdf.springjpa.Srping.jpa.filter.RequestValidationBeforeFilter;
+import com.mdf.springjpa.Srping.jpa.security.JWTTokenGeneratorFilter;
 
-@SuppressWarnings("deprecation")
+
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(
-		securedEnabled = true,
-		jsr250Enabled = true,
-		prePostEnabled = true
-		)
-public class ProectSecurityConfig extends WebSecurityConfigurerAdapter{
+public class ProectSecurityConfig{
 
 	@Value("${URLS.Authenticated.WithoutRole}")
 	private String authenticatedURLWithoutRoles;
@@ -40,10 +36,8 @@ public class ProectSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Value("${URLS.Permitall}")
 	private String permitedURL;
 	
-	//@Bean
-	//SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-	@Override
-	protected void configure(HttpSecurity http) throws Exception{
+	@Bean
+	protected SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
 		
 		/**
 		 * Configuration to deny all the requests
@@ -70,19 +64,21 @@ public class ProectSecurityConfig extends WebSecurityConfigurerAdapter{
 		String[] listUrlAuthenticatedWithBalanceRole = this.authenticatedURLWithBalanceRole.split(",");
 		String[] listUrlPermited = this.permitedURL.split(",");
 		
-		http.authorizeRequests()
+		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		.and().authorizeRequests()
 		.antMatchers(listUrlPermited).permitAll()
 		.antMatchers(listUrlAuthenticated).authenticated()
 		.antMatchers(listUrlAuthenticatedWithBalanceRole).hasAuthority("VIEWBALANCE")		
 		.and().formLogin()
 		.and().httpBasic()
 		.and().csrf().disable()
+		.addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
 		//.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
 		//.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
 		//.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
 		;
 		
-		//return http.build();
+		return http.build();
 	}
 	
 	/**
@@ -99,22 +95,4 @@ public class ProectSecurityConfig extends WebSecurityConfigurerAdapter{
 		return new BCryptPasswordEncoder();		
 	}
 	
-	//@Bean(BeanIds.AUTHENTICATION_MANAGER)
-	//public AuthenticationManager authenticationManagerBean() throws Exception{
-		//return super.authenticationManagerBean();
-	//}
-	
-	@Bean
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception{
-		return new DummyAuthenticationManager();
-	}
-	
-}
-
-class DummyAuthenticationManager implements AuthenticationManager{
-	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException{
-		return authentication;
-	}
 }
