@@ -22,6 +22,7 @@ import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
 import com.mdf.springjpa.Srping.jpa.filter.RequestValidationBeforeFilter;
 import com.mdf.springjpa.Srping.jpa.security.JWTTokenGeneratorFilter;
+import com.mdf.springjpa.Srping.jpa.security.JWTTokenValidatorFilter;
 
 
 @Configuration
@@ -73,6 +74,7 @@ public class ProectSecurityConfig{
 		.and().httpBasic()
 		.and().csrf().disable()
 		.addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+		.addFilterAfter(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
 		//.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
 		//.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
 		//.addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
