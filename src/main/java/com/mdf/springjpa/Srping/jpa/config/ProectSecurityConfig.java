@@ -1,5 +1,9 @@
 package com.mdf.springjpa.Srping.jpa.config;
 
+import java.util.Collections;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +21,9 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
@@ -65,15 +72,34 @@ public class ProectSecurityConfig{
 		String[] listUrlAuthenticatedWithBalanceRole = this.authenticatedURLWithBalanceRole.split(",");
 		String[] listUrlPermited = this.permitedURL.split(",");
 		
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		http
+		.securityContext()
+		.and().cors().configurationSource(
+				new CorsConfigurationSource() {
+
+					@Override
+					public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+						// TODO Auto-generated method stub
+						CorsConfiguration config = new CorsConfiguration();
+						config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+						config.setAllowedMethods(Collections.singletonList("*"));
+						config.setAllowCredentials(true);
+						config.setAllowedHeaders(Collections.singletonList("*"));
+						config.setMaxAge(3600L);
+						config.addExposedHeader("Authorization");
+						return config;
+					}
+					
+				})
+		.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)		
+		.and().csrf().ignoringAntMatchers(listUrlPermited).csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 		.and().authorizeRequests()
 		.antMatchers(listUrlPermited).permitAll()
 		.antMatchers(listUrlAuthenticated).authenticated()
 		.antMatchers(listUrlAuthenticatedWithBalanceRole).hasAuthority("VIEWBALANCE")		
 		.and().formLogin()
 		.and().httpBasic()
-		.and().csrf().disable()
-		.addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+		.and().addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
 		.addFilterAfter(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
 		//.addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
 		//.addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
