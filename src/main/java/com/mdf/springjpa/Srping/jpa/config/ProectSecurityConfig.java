@@ -25,6 +25,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAfterFilter;
 import com.mdf.springjpa.Srping.jpa.filter.AuthoritiesLoggingAtFilter;
 import com.mdf.springjpa.Srping.jpa.filter.RequestValidationBeforeFilter;
@@ -121,6 +122,11 @@ public class ProectSecurityConfig{
 	@Bean
 	public PasswordEncoder passwordEncoder() {		
 		return new BCryptPasswordEncoder();		
+	}
+	
+	@Bean
+	public Hibernate5Module hibernate5Module() {
+		return new Hibernate5Module();
 	}
 	
 }

@@ -2,6 +2,10 @@ package com.mdf.springjpa.Srping.jpa.service.Impl;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,9 @@ public class StudentServiceImpl implements IStudentService {
 	StudentRepository _studentRepository;
 	@Autowired
 	PasswordEncoder _passwordEncoder;
+	
+	@PersistenceContext
+	private EntityManager em;
 	
 	@Override
 	public Student addStudent(Student student) {
@@ -44,12 +51,14 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
+	@Transactional
 	public Student findStudentByEmail(String email) {
 		// TODO Auto-generated method stub
 		return this._studentRepository.findByEmailId(email);
 	}
 	
 	@Override
+	@Transactional
 	public List<Student> retrieveAllStudent() {
 		// TODO Auto-generated method stub
 		//return this._studentRepository.findAll();
@@ -87,11 +96,18 @@ public class StudentServiceImpl implements IStudentService {
 		return null;
 	}
 	
+	@Transactional
 	public List<Student> retrieveAllStudentsAuthorities(){
 		try {
-			List<Student> studentAuth = this._studentRepository.GET_ALL_STUDENTS_AUTHORITIES("test@test.com");
+			List studentAuth = this.em.createStoredProcedureQuery("GET_ALL_STUDENTS_AUTHORITIES")
+					.registerStoredProcedureParameter("email", String.class, ParameterMode.IN)
+					.setParameter("email", "test@test.com")
+					.getResultList();
+			
+			//List<Student> studentAuth = this._studentRepository.GET_ALL_STUDENTS_AUTHORITIES("test@test.com");
 			return studentAuth;
 		} catch(Exception e){
+			System.out.println(e);
 			return null;
 		}
 	}

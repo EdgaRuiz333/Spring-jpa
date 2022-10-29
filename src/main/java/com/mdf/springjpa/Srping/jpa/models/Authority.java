@@ -40,7 +40,6 @@ public class Authority {
 	private String name;
 	
 	@ManyToMany(mappedBy = "authorities")
-	@JsonIgnore
 	@ToString.Exclude
 	private Set<Student> student;
 

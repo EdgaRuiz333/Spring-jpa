@@ -31,7 +31,7 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter{
 		// TODO Auto-generated method stub
 		
 		String jwt = request.getHeader(SecurityConstants.JWT_HEADER);
-		String token = this.getJwtFromRequest(jwt);
+		String token = jwt;
 		if(token != null) {
 			try {
 				SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
@@ -41,14 +41,14 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter{
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, null,
 						AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
 				SecurityContextHolder.getContext().setAuthentication(auth);
-				
+				filterChain.doFilter(request, response);
 			} catch(Exception e) {
 				throw new BadCredentialsException("invalid Token");				
 			}
 		}else {
 			throw new BadCredentialsException("invalid Token");
 		}
-		filterChain.doFilter(request, response);
+		
 	}
 
 	protected boolean shouldNotFilter(HttpServletRequest req) {
