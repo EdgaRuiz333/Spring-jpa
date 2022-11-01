@@ -31,11 +31,11 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter{
 		// TODO Auto-generated method stub
 		
 		String jwt = request.getHeader(SecurityConstants.JWT_HEADER);
-		String token = jwt;
+		String token = getJwtFromRequest(jwt);
 		if(token != null) {
 			try {
 				SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-				Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJwt(token).getBody();
+				Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 				String username = String.valueOf(claims.get("username"));
 				String authorities = String.valueOf(claims.get("authorities"));
 				Authentication auth = new UsernamePasswordAuthenticationToken(username, null,

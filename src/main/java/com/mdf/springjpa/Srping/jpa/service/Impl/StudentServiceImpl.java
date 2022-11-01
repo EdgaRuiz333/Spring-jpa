@@ -99,7 +99,7 @@ public class StudentServiceImpl implements IStudentService {
 	@Transactional
 	public List<Student> retrieveAllStudentsAuthorities(){
 		try {
-			List studentAuth = this.em.createStoredProcedureQuery("GET_ALL_STUDENTS_AUTHORITIES")
+			List studentAuth = this.em.createStoredProcedureQuery("GET_ALL_STUDENTS_AUTHORITIES", "AuthoritiesStudent")
 					.registerStoredProcedureParameter("email", String.class, ParameterMode.IN)
 					.setParameter("email", "test@test.com")
 					.getResultList();

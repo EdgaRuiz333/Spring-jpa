@@ -4,7 +4,8 @@ spring:
       username: root
    driver-class-name: com.mysql.jdbc.Driver
    jpa:
-      #show-sql: true
+      #open-in-view: false
+      #show-sql: false
       hibernate:
          ddl-auto: update
    #security:
