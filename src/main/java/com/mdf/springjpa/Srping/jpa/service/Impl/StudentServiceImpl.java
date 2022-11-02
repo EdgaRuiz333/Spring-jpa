@@ -1,6 +1,8 @@
 package com.mdf.springjpa.Srping.jpa.service.Impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mdf.springjpa.Srping.jpa.models.Authority;
 import com.mdf.springjpa.Srping.jpa.models.Guardian;
 import com.mdf.springjpa.Srping.jpa.models.Student;
 import com.mdf.springjpa.Srping.jpa.repository.StudentRepository;
@@ -103,10 +106,29 @@ public class StudentServiceImpl implements IStudentService {
 					.registerStoredProcedureParameter("email", String.class, ParameterMode.IN)
 					.setParameter("email", "test@test.com")
 					.getResultList();
-			
 			//List<Student> studentAuth = this._studentRepository.GET_ALL_STUDENTS_AUTHORITIES("test@test.com");
 			return studentAuth;
 		} catch(Exception e){
+			System.out.println(e);
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public Student retrieveStudentInfo(Long id) {
+		try {
+			
+			Student _studentResult = this._studentRepository.findByStudentId(id);
+			Set<Authority> authorities = new HashSet<Authority>();
+			for(Authority auth: _studentResult.getAuthorities()) 
+			{
+				authorities.add(auth);
+			}
+			_studentResult.setAuthorities(authorities);
+			return _studentResult;	
+			
+		} catch(Exception e) {
 			System.out.println(e);
 			return null;
 		}

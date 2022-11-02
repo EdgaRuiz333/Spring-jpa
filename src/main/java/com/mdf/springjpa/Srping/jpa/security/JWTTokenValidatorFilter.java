@@ -60,6 +60,6 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter{
 		if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
 			return token.substring(7,token.length());
 		}
-		return null;
+		return token;
 	}
 }

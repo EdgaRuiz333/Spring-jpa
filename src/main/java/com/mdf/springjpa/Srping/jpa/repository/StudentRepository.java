@@ -13,6 +13,8 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 	
 	public List<Student> findByGuardianNameNotNull();
 	
+	public Student findByStudentId(Long id);
+	
 	@Procedure(procedureName = "GET_ALL_STUDENTS")
 	public List<Student> GET_ALL_STUDENTS();
 	@Procedure(procedureName = "GET_ALL_STUDENTS_AUTHORITIES")
